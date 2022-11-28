@@ -166,6 +166,8 @@ write_rds(nga_wp, "data/nga_wp.rds")
 ## Visualising the spatial dsitribution of water point
 
 ```{r}
+#| fig-width: 14
+#| fig-height: 12
 nga_wp <- read_rds("data/nga_wp.rds")
 total <- qtm(nga_wp, "total wpt")
 wp_functional <- qtm(nga_wp, "wpt functional")
