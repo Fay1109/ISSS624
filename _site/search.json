@@ -320,5 +320,12 @@
     "title": "In-class Exercise 2: Global and Local Measures of Spatial Autocorrelation",
     "section": "Visualising the spatial dsitribution of water point",
     "text": "Visualising the spatial dsitribution of water point\n\nnga_wp <- read_rds(\"data/nga_wp.rds\")\ntotal <- qtm(nga_wp, \"total wpt\")\nwp_functional <- qtm(nga_wp, \"wpt functional\")\nwp_nonfunctional <- qtm(nga_wp, \"wpt non-functional\")\nunknown <- qtm(nga_wp, \"wpt unknown\")\n\ntmap_arrange(total, wp_functional, wp_nonfunctional, unknown, asp=1, ncol=2)"
+  },
+  {
+    "objectID": "In-class_Ex2/In-class_Ex2.html#visualising-the-spatial-distribution-of-water-point",
+    "href": "In-class_Ex2/In-class_Ex2.html#visualising-the-spatial-distribution-of-water-point",
+    "title": "In-class Exercise 2: Global and Local Measures of Spatial Autocorrelation",
+    "section": "Visualising the spatial distribution of water point",
+    "text": "Visualising the spatial distribution of water point\n\nnga_wp <- read_rds(\"data/nga_wp.rds\")\ntotal <- qtm(nga_wp, \"total wpt\")\nwp_functional <- qtm(nga_wp, \"wpt functional\")\nwp_nonfunctional <- qtm(nga_wp, \"wpt non-functional\")\nunknown <- qtm(nga_wp, \"wpt unknown\")\n\ntmap_arrange(total, wp_functional, wp_nonfunctional, unknown, asp=1, ncol=2)"
   }
 ]

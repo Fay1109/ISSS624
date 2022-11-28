@@ -209,7 +209,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </ul></li>
   <li><a href="#performing-point-in-polygon-count" id="toc-performing-point-in-polygon-count" class="nav-link" data-scroll-target="#performing-point-in-polygon-count">Performing Point-in-Polygon Count</a></li>
   <li><a href="#saving-the-analytical-data-table" id="toc-saving-the-analytical-data-table" class="nav-link" data-scroll-target="#saving-the-analytical-data-table">Saving the Analytical Data Table</a></li>
-  <li><a href="#visualising-the-spatial-dsitribution-of-water-point" id="toc-visualising-the-spatial-dsitribution-of-water-point" class="nav-link" data-scroll-target="#visualising-the-spatial-dsitribution-of-water-point">Visualising the spatial dsitribution of water point</a></li>
+  <li><a href="#visualising-the-spatial-distribution-of-water-point" id="toc-visualising-the-spatial-distribution-of-water-point" class="nav-link" data-scroll-target="#visualising-the-spatial-distribution-of-water-point">Visualising the spatial distribution of water point</a></li>
   </ul>
 </nav>
     </div>
@@ -364,8 +364,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(nga_wp, <span class="st">"data/nga_wp.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="visualising-the-spatial-dsitribution-of-water-point" class="level2">
-<h2 class="anchored" data-anchor-id="visualising-the-spatial-dsitribution-of-water-point">Visualising the spatial dsitribution of water point</h2>
+<section id="visualising-the-spatial-distribution-of-water-point" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-the-spatial-distribution-of-water-point">Visualising the spatial distribution of water point</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>nga_wp <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/nga_wp.rds"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>total <span class="ot">&lt;-</span> <span class="fu">qtm</span>(nga_wp, <span class="st">"total wpt"</span>)</span>
@@ -375,7 +375,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(total, wp_functional, wp_nonfunctional, unknown, <span class="at">asp=</span><span class="dv">1</span>, <span class="at">ncol=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="In-class_Ex2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<p><img src="In-class_Ex2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="1344"></p>
 </div>
 </div>
 

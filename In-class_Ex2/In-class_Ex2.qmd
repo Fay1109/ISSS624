@@ -163,7 +163,7 @@ Now, you have the tidy sf data table subsequent analysis. We will save the sf da
 write_rds(nga_wp, "data/nga_wp.rds")
 ```
 
-## Visualising the spatial dsitribution of water point
+## Visualising the spatial distribution of water point
 
 ```{r}
 #| fig-width: 14
