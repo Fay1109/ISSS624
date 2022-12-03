@@ -6,7 +6,6 @@ execute:
   warning: false
   message: false
   fid-retine: 3
-  bv 
 editor: visual
 ---
 

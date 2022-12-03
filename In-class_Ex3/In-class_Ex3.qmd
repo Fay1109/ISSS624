@@ -1,12 +1,12 @@
 ---
-title: "Hands-on Exercise 3: Geographical Segmentation with Spatially Constrained Clustering Techniques"
+title: "Geographical Segmentation with Spatially Constrained Clustering Techniques"
 format: html
 execute: 
   echo: false
   warning: false
   message: false
   fid-retine: 3
-  editor: visual
+editor: visual
 ---
 
 # Geographical Segmentation with Spatially Constrained Clustering Techniques
