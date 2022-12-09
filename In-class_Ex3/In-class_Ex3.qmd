@@ -9,8 +9,6 @@ execute:
 editor: visual
 ---
 
-# Geographical Segmentation with Spatially Constrained Clustering Techniques
-
 ## Overview
 
 There are two major analysis, namely:
