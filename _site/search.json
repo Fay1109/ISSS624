@@ -747,5 +747,68 @@
     "title": "Take-home Exercise 1",
     "section": "Mapping Gi values with adaptive distance weights",
     "text": "Mapping Gi values with adaptive distance weights\n\nnonfunc <- qtm(nga_wp, \"wpt non-functional\")\n\nGimap <- tm_shape(hunan.gi) + \n  tm_fill(col = \"gstat_adaptive\", \n          style = \"pretty\", \n          palette=\"-RdBu\", \n          title = \"local Gi\") + \n  tm_borders(alpha = 0.5)\n\ntmap_arrange(nonfunc, \n             Gimap, \n             asp=1, \n             ncol=2)"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#introduction",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#introduction",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Introduction",
+    "text": "Introduction\nRegionalisation is the process of creating regions. It is one of the clustering methods which aims at grouping observations that are similar not only in statistical attributes but also in spatial location. Therefore, regionalisation absorbs the same logic as traditional clustering methods and also applies a series of geographical constraints."
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#the-data",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#the-data",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "The Data",
+    "text": "The Data\n\nApstial data\nFor the purpose of this assignment, data from WPdx Global Data Repositories will be used. There are two versions of the data. They are: WPdx-Basic and WPdx+. You are required to use WPdx+ data set.\n\n\nGeospatial data\nNigeria Level-2 Administrative Boundary (also known as Local Government Area) polygon features GIS data will be used in this take-home exercise. The data can be downloaded either from The Humanitarian Data Exchange portal or geoBoundaries."
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#r-package",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#r-package",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "R package",
+    "text": "R package\nThe packages will be used for this analysis:\nsf: for importing and processing geospatial data,\ntidyverse: for importing and processing non-spatial data.\n\npacman::p_load(sf, tidyverse, tmap, funModeling, sfdep, rgeoda)"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#importing-water-point-data",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#importing-water-point-data",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Importing water point data",
+    "text": "Importing water point data\n\nwp_nga <- read_csv(\"data/WPdx.csv\") %>%\n  filter(`#clean_country_name` == \"Nigeria\")\n\nConvert Well Known Text data\nThere is a column called New Georeferenced Column which represent spatial data in a textual format. And this kind of text file is popularly known as Well Known Text(wkt).\nThere are two steps to convert this wkt format into a sf data frame.\nFirstly, st_as_sfc() of sf package is used to derive a new field called Geometry as shown in the code chunk below.\n\nwp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)\n\nNext, st_sf() will be used to convert the tibble data frame into sf data frame.\n\nwp_sf <- st_sf(wp_nga, crs=4326) \n\nThe code chunk below is used to\n\nhead(wp_sf)"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#importing-nigeria-lga-level-boundary-data",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#importing-nigeria-lga-level-boundary-data",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Importing Nigeria LGA level boundary data",
+    "text": "Importing Nigeria LGA level boundary data\n\nnga <- st_read(dsn=\"data\",\n                   layer=\"nga_admbnda_adm2_osgof_20190417\",\n               crs=4326)\n\n\nChecking duplicate area name\nduplicated can retrieve which elements of a vector or data frame are duplicate. The code chunk below can be used to determine the duplicate elements.\n\nduplicate_area <- nga$`ADM2_EN`[nga$`ADM2_EN` %in% nga$`ADM2_EN`[duplicated(nga$`ADM2_EN`)]]\n\nindex <- which(nga$`ADM2_EN` %in% nga$`ADM2_EN`[duplicated(nga$`ADM2_EN`)])\n\nduplicate_area\nindex\n\nThere are 12 duplicate elements. Then we can check the location of each element by using tmap.\n\ntmap_mode(\"view\")\ntm_shape(nga[nga$`ADM2_EN`  %in% duplicate_area,]) +\n  tm_polygons()\n\nThen we can compare the map with the google map, and we can find the correct ADM2_EN.\n\n\n\nIndex\nOriginal ADM2_EN\nCorrect ADM2_EN\n\n\n\n\n94\nBassa\nBassa(Kogi)\n\n\n95\nBassa\nBassa(Plateau)\n\n\n304\nIfelodun\nIfelodun(Kwara)\n\n\n305\nIfelodun\nIfelodun(Osun)\n\n\n355\nIrepodun\nIrepodun(Kwara)\n\n\n356\nIrepodun\nIrepodun(Osun)\n\n\n519\nNasarawa\nNassarawa\n\n\n520\nNasarawa\nNasarawa\n\n\n546\nObi\nObi(Benue)\n\n\n547\nObi\nObi(Nasarawa)\n\n\n693\nSurulere\nSurulere(Lagos)\n\n\n694\nSurulere\nSurulere(Oyo)\n\n\n\nThe code chunk below is used to update the correct ADM2_EN.\n\nnga$`ADM2_EN` [c(94,95,304,305,355,356,519,546,547,693,694)] <- c(\"Bassa(Kogi)\",\"Bassa(Plateau)\",\n                                                                               \"Ifelodun(Kwara)\",\"Ifelodun(Osun)\",\n                                                                               \"Irepodun (Kwara)\",\"Irepodun(Osun)\",\n                                                                               \"Nassarawa\",\"Obi(Benue)\",\"Obi(Nasarawa)\",\n                                                                               \"Surulere(Lagos)\",\"Surulere(Oyo)\")\n\nWe can whether duplicate elements exist or not now.\n\nlength(nga$`ADM2_EN`[ nga$`ADM2_EN` %in% nga$`ADM2_EN`[duplicated(nga$`ADM2_EN`)] ])"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#point-in-polygon-overlay",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#point-in-polygon-overlay",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Point in Polygon Overlay",
+    "text": "Point in Polygon Overlay\nAlthough wp_sf sf data frame consists of a field called #clean_adm2 which by right should provides the LGA name of the water point located. However, it is always a good practice to be more caution when dealing with data accuracy.\nWe are going to use a geoprocessing function (or commonly know as GIS analysis) called point-in-polygon overlay to transfer the attribute information in nga sf data frame into wp_sf data frame.\n\nwp_sf <- st_join(wp_sf, nga)\n\nwrite_rdsof readr package is used to save the wp_sf data frame into an output file in rds data format. The output file is called wp_nga and saved in data sub-folder.\n\nwp_nigeria <- write_rds(wp_sf,\n                    \"data/wp_nigeria.rds\")"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#data-wrangling",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#data-wrangling",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Data Wrangling",
+    "text": "Data Wrangling\n\nRecode NA values into string\nThe code chunk below is used to recode all the NA values in #status_clean field into Unknown.\n\nwp_nigeria <- read_rds(\"data/wp_nigeria.rds\") %>%\n  mutate(`#status_clean`= replace_na(`#status_clean`, \"Unknown\"))\n\n\nfreq(data=wp_nigeria, \n     input = '#status_clean')\n\n\n\nExtracting Water Point Data by functional, non-functional and unknown\nWe are going to extract water point records by using #status_clean column.\nThe code chunk below is used to extract functional water points.\n\nwpt_functional <- wp_nigeria %>%\n  filter(`#status_clean` %in%\n           c(\"Functional\", \n             \"Functional but not in use\",\n             \"Functional but needs repair\"))\n\nThe code chunk below is used to extract non-functional water points.\n\nwpt_nonfunctional <- wp_nigeria %>%\n  filter(`#status_clean` %in%\n           c(\"Abandoned/Decommissioned\", \n             \"Abandoned\",\n             \"Non-Functional\",\n             \"Non functional due to dry season\",\n             \"Non-Functional due to dry season\"))\n\nThe code chunk below is used to extract unknown water points.\n\nwpt_unknown <- wp_nigeria %>%\n  filter(`#status_clean`  == \"Unknown\")\n\n\n\nExtracting Water Point Data by main technology\nThe code chunk below is used to display the distribution of technology adopted by water points.\n\nfreq(data=wp_nigeria, \n     input = '#water_tech_category')\n\nWe are going to categorize the technology into three types: Hand Pump, Mechanized Pump and Unknown(includes NA values, Tapstand, Rope and Bucket).\nThe code chunk below is used to extract water points by category.\n\nwpt_handpp <- wp_nigeria %>%\n  filter(`#water_tech_category` %in%\n           c(\"Hand Pump\"))\n\nwpt_mechanizedpp <- wp_nigeria %>%\n  filter(`#water_tech_category` %in%\n           c(\"Mechanized Pump\"))\n\n\n\nExtracting Water Point Data by usage capacity\n\nfreq(data=wp_nigeria, \n     input = 'usage_capacity')\n\nThe code chunk below is used to split usage_capacity into two categories (<1000 and >=1000).\n\nwpt_usage_cap_below_1k <- wp_nigeria %>%\n  filter(`usage_capacity` %in%\n           c(\"50\",\"250\",\"300\"))\n\nwpt_usage_cap_above_1k <- wp_nigeria %>%\n  filter(`usage_capacity` %in%\n           c(\"1000\"))\n\n\n\nExtracting Rural Water Point Data\n\nfreq(data=wp_nigeria, \n     input = 'is_urban')\n\n\nwpt_rural <- wp_nigeria %>%\n  filter(`is_urban` %in%\n           c(\"FALSE\"))\n\n\n\nPerforming Point-in-Polygon Count\nThe code chunk below is going to create a new data frame nigeria_wp to store the newly-derived variables.\n\nnigeria_wp <- nga %>% \n  mutate(`total wpt` = lengths(\n    st_intersects(nga, wp_nigeria))) %>%\n  mutate(`wpt functional` = lengths(\n    st_intersects(nga, wpt_functional))) %>%\n  mutate(`wpt non-functional` = lengths(\n    st_intersects(nga, wpt_nonfunctional))) %>%\n  mutate(`wpt unknown` = lengths(\n    st_intersects(nga, wpt_unknown))) %>%\n  mutate(`wpt handpump`=lengths(\n    st_intersects(nga, wpt_handpp))) %>%\n  mutate(`wpt mechpump`=lengths(\n    st_intersects(nga, wpt_mechanizedpp))) %>%\n  mutate(`wpt usage_below_1k`=lengths(\n    st_intersects(nga, wpt_usage_cap_below_1k))) %>%\n  mutate(`wpt usage_above_1k`=lengths(\n    st_intersects(nga, wpt_usage_cap_above_1k))) %>%\n  mutate(`wpt rural`=lengths(\n    st_intersects(nga, wpt_rural)))"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#saving-the-analytical-data-table",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#saving-the-analytical-data-table",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Saving the Analytical Data Table",
+    "text": "Saving the Analytical Data Table\nThe code chunk below is used to generate related percentage.\n\nnigeria_wp <- nigeria_wp %>%\n  mutate(`pct_functional` = `wpt functional`/`total wpt`) %>%\n  mutate(`pct_non-functional` = `wpt non-functional`/`total wpt`) %>%\n  mutate(`pct_handpump` = `wpt handpump`/`total wpt`) %>%\n  mutate(`pct_mechpump` = `wpt mechpump`/`total wpt`) %>%\n  mutate(`pct_usage_below_1k` = `wpt usage_below_1k`/`total wpt`) %>%\n  mutate(`pct_usage_above_1k` = `wpt usage_above_1k`/`total wpt`) %>%\n  mutate(`pct_rural` = `wpt rural`/`total wpt`) %>%\n  select(3:4, 9:10, 18:33)\n\n\nwrite_rds(nigeria_wp, \"data/nigeria_wp.rds\")\n\n\nnigeria_wp <- read_rds(\"data/nigeria_wp.rds\")\n\nThe code chunk below is\n\nsummary(nigeria_wp)"
+  },
+  {
+    "objectID": "Take-home_Ex2/Take-home_Ex2.html#visualizing-the-spatial-distribution-of-water-points",
+    "href": "Take-home_Ex2/Take-home_Ex2.html#visualizing-the-spatial-distribution-of-water-points",
+    "title": "Regionalisation of Multivariate Water Point Attributes with Non-spatially Constrained and Spatially Constrained Clustering Methods",
+    "section": "Visualizing the spatial distribution of water points",
+    "text": "Visualizing the spatial distribution of water points\n\ntotal <- qtm(nigeria_wp, \"total wpt\")\nwp_functional <- qtm(nigeria_wp, \"wpt functional\")\nwp_nonfunctional <- qtm(nigeria_wp, \"wpt non-functional\")\nunknown <- qtm(nigeria_wp, \"wpt unknown\")\n\ntmap_arrange(total, wp_functional, wp_nonfunctional, unknown, asp=1, ncol=2)"
   }
 ]
