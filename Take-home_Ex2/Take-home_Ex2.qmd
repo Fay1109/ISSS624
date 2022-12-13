@@ -320,7 +320,7 @@ nigeria_wp <- nigeria_wp %>%
 ```
 
 ```{r}
-
+#| eval: false
 write_rds(nigeria_wp, "data/nigeria_wp.rds")
 ```
 
@@ -471,7 +471,7 @@ There are a total of eight clustering algorithms for AGNES:\
 -median(WPGMC)\
 -centroid(UPGMC)
 
-We will start off with \"ward.D\"
+We will start off with "ward.D"
 
 Using hclust() of the base R package, we will compute the cluster as follow:
 
@@ -483,7 +483,7 @@ We will then get an object hclust_ward which contains the detaiLED information o
 
 ## Plotting the Dendrogram:
 
-Each time the code is run, the .png object will be updated. For better resolution, we increase the width and height of the .png file. The \"cex\" is adjusted such that the names of each region is just visible when we zoom in on the .png object.
+Each time the code is run, the .png object will be updated. For better resolution, we increase the width and height of the .png file. The "cex" is adjusted such that the names of each region is just visible when we zoom in on the .png object.
 
 Additional parameters:
 
@@ -511,7 +511,7 @@ agnes_result <- agnes(std_cluster_vars, method = "ward")
 agnes_result$ac
 ```
 
-The results are stored in the output data structure under the name agnes_result\$ac. The higher the magnitude of this value, the better the clustering structure. In this case, \"ward\" gets a score of 0.9899133 which shows strong clustering structure.
+The results are stored in the output data structure under the name agnes_result\$ac. The higher the magnitude of this value, the better the clustering structure. In this case, "ward" gets a score of 0.9899133 which shows strong clustering structure.
 
 We will need to test all 4 of the clustering algorithms to determine which is the best to apply.
 
@@ -523,7 +523,7 @@ names(algorithms) <- c( "average", "single", "complete", "ward")
 algorithms
 ```
 
-Next we write a simple function \"test\" that takes in the name of the clustering algorithm and then outputs the score of the clustering structure:
+Next we write a simple function "test" that takes in the name of the clustering algorithm and then outputs the score of the clustering structure:
 
 ```{r}
 test <- function(x) {
@@ -535,7 +535,7 @@ test <- function(x) {
 map_dbl(algorithms, test)
 ```
 
-Of the clustering algorithms, we can see that \"ward\" methods gives us the best clustering structure. Hence we will use this for the rest of the analysis.
+Of the clustering algorithms, we can see that "ward" methods gives us the best clustering structure. Hence we will use this for the rest of the analysis.
 
 We perform house keeping:
 
@@ -652,6 +652,7 @@ rect.hclust(hclust_ward,
     ```
 
     ```{r}
+    #| eval: false
     bind_std_cluster_vars <- bind_std_cluster_vars[c(1:85, 87:774),]
     nga_wp <- nga_wp[c(1:85, 87:774),]
     std_cluster_vars <- std_cluster_vars[c(1:85, 87:774),]
@@ -691,7 +692,7 @@ rect.hclust(hclust_ward,
     ```
 
     Next we need to construct the weights taking into account the edge cost and the neighbors:\
-    (We need to use \"B\" for binary here since we want the edge cost)
+    (We need to use "B" for binary here since we want the edge cost)
 
     ```{r}
     nga.w <- nb2listw(nga.nb, 
@@ -762,6 +763,7 @@ rect.hclust(hclust_ward,
     Lastly we can visualize our outcome with qtm() of the tmap:
 
     ```{r}
+    #| eval: false
     groups_mat <- as.matrix(clust5$groups)
     nga_sf_spatialcluster <- cbind(nga_final, as.factor(groups_mat)) %>%
         rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
@@ -789,6 +791,7 @@ rect.hclust(hclust_ward,
     ```
 
     ```{r}
+    #| eval: false
     normal_cluster.map <- tm_shape(bind_std_cluster_vars) + 
                           tm_fill("CLUSTER") + 
                           tm_borders(alpha = 1.0) + 
