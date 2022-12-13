@@ -32,7 +32,7 @@ The packages will be used for this analysis:
 
 ```{r}
 
-pacman::p_load(sf, tidyverse, tmap, funModeling, sfdep, rgeoda)
+pacman::p_load(sf, tidyverse, tmap, funModeling, sfdep, rgeoda, corrplot, cluster, NbClust, knitr)
 ```
 
 # Data Processing and Wrangling
@@ -325,25 +325,74 @@ write_rds(nigeria_wp, "data/nigeria_wp.rds")
 ```
 
 ```{r}
-#| eval: false
 nigeria_wp <- read_rds("data/nigeria_wp.rds")
 ```
 
 The code chunk below is
 
 ```{r}
-#| eval: false
 summary(nigeria_wp)
 ```
 
 ## Visualizing the spatial distribution of water points
 
 ```{r}
-#| eval: false
 total <- qtm(nigeria_wp, "total wpt")
 wp_functional <- qtm(nigeria_wp, "wpt functional")
 wp_nonfunctional <- qtm(nigeria_wp, "wpt non-functional")
 unknown <- qtm(nigeria_wp, "wpt unknown")
 
 tmap_arrange(total, wp_functional, wp_nonfunctional, unknown, asp=1, ncol=2)
+```
+
+## Correlation Analysis
+
+Before we perform cluster analysis, it is important for us to ensure that the cluster variables are not highly correlated.
+
+```{r}
+corr_data <- nigeria_wp[,c(6:7, 14:15, 19:20)] %>% st_set_geometry(NULL)
+```
+
+```{r}
+cluster_vars.cor = cor(corr_data)
+corrplot.mixed(cluster_vars.cor,
+         lower = "ellipse", 
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
+
+```
+
+```{r}
+rm(cluster_vars.cor)
+rm(corr_data)
+```
+
+## 
+Hierarchy Cluster Analysis
+
+## Extract the clustering variables
+
+To perform the analysis, we need to extract the cluster variables without the geometric data. To do this, we we will use the function st_set_geometry(NULL) from sf package on our sf dataframe.
+
+We run the code as follow:
+
+```{r}
+cluster_vars <- nigeria_wp %>%
+  st_set_geometry(NULL) %>%
+  select('ADM2_EN','wpt_functional','wpt_nonfunctional','pct_functional''pct_nonfunctional''pct_handpump','pct_usage_above_1k','pct_rural')
+head(cluster_vars,3)
+```
+
+## Hierarchy Cluster Analysis
+
+### Extracting clustering variables
+
+```{r}
+cluster_vars <- nigeria_wp %>%
+  st_set_geometry(NULL) %>%
+  select(1,6,7,14:20)
+  
+kable(head(cluster_vars,5))
 ```
