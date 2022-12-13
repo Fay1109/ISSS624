@@ -572,9 +572,7 @@ rect.hclust(hclust_ward,
             border = 2:5)
 ```
 
-1.  
-
-    ## Mapping the clusters
+1.  Mapping the clusters
 
     We first use the function cutree() of R base to prune the clusters to 5:
 
