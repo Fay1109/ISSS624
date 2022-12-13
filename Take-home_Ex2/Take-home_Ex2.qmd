@@ -32,7 +32,7 @@ The packages will be used for this analysis:
 
 ```{r}
 
-pacman::p_load(sf, tidyverse, tmap, funModeling, sfdep, rgeoda, corrplot, cluster, NbClust, knitr)
+pacman::p_load(sf, tidyverse, tmap, funModeling, sfdep, rgeoda, corrplot, cluster, NbClust, knitr, dplyr, ClustGeo, factoextra, heatmaply, spdep)
 ```
 
 # Data Processing and Wrangling
@@ -351,6 +351,7 @@ Before we perform cluster analysis, it is important for us to ensure that the cl
 
 ```{r}
 corr_data <- nigeria_wp[,c(6:7, 14:15, 19:20)] %>% st_set_geometry(NULL)
+
 ```
 
 ```{r}
@@ -370,29 +371,506 @@ rm(corr_data)
 ```
 
 ## 
+
 Hierarchy Cluster Analysis
 
 ## Extract the clustering variables
 
 To perform the analysis, we need to extract the cluster variables without the geometric data. To do this, we we will use the function st_set_geometry(NULL) from sf package on our sf dataframe.
 
+```{r}
+#| eval: false
+NaN_list <- is.nan(nigeria_wp$pct_functional)
+nigeria_wp$pct_functional[NaN_list] <- 0
+
+
+
+NaN_list <- is.nan(nigeria_wp$pct_handpump)
+nigeria_wp$pct_handpump[NaN_list] <- 0
+
+NaN_list <- is.nan(nigeria_wp$pct_handpump)
+nigeria_wp$pct_handpump[NaN_list] <- 0
+
+NaN_list <- is.nan(nigeria_wp$pct_usage_below_1k)
+nigeria_wp$pct_usage_below_1k[NaN_list] <- 0
+
+NaN_list <- is.nan(nigeria_wp$pct_rural)
+nigeria_wp$pct_rural[NaN_list] <- 0
+```
+
 We run the code as follow:
 
 ```{r}
 cluster_vars <- nigeria_wp %>%
   st_set_geometry(NULL) %>%
-  select('ADM2_EN','wpt_functional','wpt_nonfunctional','pct_functional''pct_nonfunctional''pct_handpump','pct_usage_above_1k','pct_rural')
+  select("ADM2_EN", "wpt functional", "wpt non-functional", 
+         "pct_functional", "pct_non-functional", 
+         "pct_handpump", "pct_usage_below_1k", "pct_rural")
+
 head(cluster_vars,3)
 ```
 
-## Hierarchy Cluster Analysis
-
-### Extracting clustering variables
+Next, we need to change the row names using row.name() function from R base:
 
 ```{r}
-cluster_vars <- nigeria_wp %>%
-  st_set_geometry(NULL) %>%
-  select(1,6,7,14:20)
-  
-kable(head(cluster_vars,5))
+row.names(cluster_vars) <- cluster_vars$"ADM2_EN"
+head(cluster_vars,3)
 ```
+
+Now, we do not need the column ADM2_EN & pct_usage_below_1k anymore, so we exclude it:
+
+```{r}
+cluster_vars <- select(cluster_vars, c(2:6,8))
+head(cluster_vars, 3)
+```
+
+## Data Standardization
+
+we can see that the columns [**wpt_functional**]{.underline} and [**wpt_non_functional**]{.underline} have much higher ranges since they are counts instead of percentages. Thus we need to perform standardization on these columns. This is because analysis results will be biased towards clustering variables with large values. Hence the need for standardization before cluster analysis
+
+We will therefore perform the min-max standardization using the normalize() of the heatmaply package:\
+(we use summary() of base R package to check the outcome)
+
+```{r}
+std_cluster_vars <- normalize(cluster_vars)
+summary(std_cluster_vars)
+```
+
+## Compute the proximity matrix
+
+When calculating proximity matrix, there are a few options available for us:\
+-Euclidean\
+-Maximum\
+-Manhattan / City Block Distance\
+-Canberra\
+-Binary\
+-Minkowski
+
+We will use Euclidean since it is the default.\
+Using the dist() of the base R package, we will compute the proximity matrix:
+
+```{r}
+proxmat <- dist(std_cluster_vars, method = 'euclidean')
+```
+
+## Compute the Clustering
+
+There are 2 forms of clustering methods:
+
+-   Agglomerative-AGNES: This is a bottom up manner where each point starts as a cluster
+
+-   Divise Analysis-DIANA: This is a top down approach. At each step, most heterogeneous is split.
+
+There are a total of eight clustering algorithms for AGNES:\
+-ward.D\
+-ward.D2\
+-single\
+-complete\
+-average(UPGMA)\
+-mcquitty(WPGMA)\
+-median(WPGMC)\
+-centroid(UPGMC)
+
+We will start off with \"ward.D\"
+
+Using hclust() of the base R package, we will compute the cluster as follow:
+
+```{r}
+hclust_ward <- hclust(proxmat, method = 'ward.D')
+```
+
+We will then get an object hclust_ward which contains the detaiLED information on the structure of the cluster tree. This will allow the later plot() function to know how to plot the structure correctly.
+
+## Plotting the Dendrogram:
+
+Each time the code is run, the .png object will be updated. For better resolution, we increase the width and height of the .png file. The \"cex\" is adjusted such that the names of each region is just visible when we zoom in on the .png object.
+
+Additional parameters:
+
+-   lwd: Line width
+
+-   main: Title
+
+-   line: Position of title
+
+-   cex.main: Size of title
+
+We run the code as follow:
+
+```{r}
+png("plotdendogram.png",width=12800,height=3200)
+plot(hclust_ward, cex = 1.2, lwd=3.0, main="Dendrogram", line = -20, cex.main=20)
+```
+
+## Selecting the optimal clustering algorithm:
+
+In order the measure the strength of the clustering structure, we will need to measure the agglomerative coefficient. If we compare the aforementioned coefficient across various clustering algorithms, we will be able to select the algorithm that gives us the best clustering structure.
+
+```{r}
+agnes_result <- agnes(std_cluster_vars, method = "ward")
+agnes_result$ac
+```
+
+The results are stored in the output data structure under the name agnes_result\$ac. The higher the magnitude of this value, the better the clustering structure. In this case, \"ward\" gets a score of 0.9899133 which shows strong clustering structure.
+
+We will need to test all 4 of the clustering algorithms to determine which is the best to apply.
+
+First, we need to create a data structure to hold the names of the clustering algorithms:
+
+```{r}
+algorithms <- c( "average", "single", "complete", "ward")
+names(algorithms) <- c( "average", "single", "complete", "ward")
+algorithms
+```
+
+Next we write a simple function \"test\" that takes in the name of the clustering algorithm and then outputs the score of the clustering structure:
+
+```{r}
+test <- function(x) {
+  agnes(std_cluster_vars, method = x)$ac
+}
+```
+
+```{r}
+map_dbl(algorithms, test)
+```
+
+Of the clustering algorithms, we can see that \"ward\" methods gives us the best clustering structure. Hence we will use this for the rest of the analysis.
+
+We perform house keeping:
+
+```{r}
+rm(cluster_vars)
+rm(agnes_result)
+rm(algorithms)
+# rm(proxmat)
+rm(test)
+```
+
+## **Determining optimal clusters**
+
+There are [three](https://statweb.stanford.edu/~gwalther/gap) commonly used methods to determine the optimal clusters, they are:
+
+-   [Elbow Method](https://en.wikipedia.org/wiki/Elbow_method_(clustering))
+
+-   [Average Silhouette Method](https://www.sciencedirect.com/science/article/pii/0377042787901257?via%3Dihub)
+
+-   [Gap Statistic Method](http://www.web.stanford.edu/~hastie/Papers/gap.pdf)
+
+Let us use Elbow Method to determine optimal no. of clusters.
+
+fviz_nbclust() of factoextra package - to specify the no. of clusters to be generated
+
+method - wss - within sum of squares
+
+```{r}
+set.seed(3456)
+hclust_ward <- hclust(proxmat, method = 'ward.D')
+plot(hclust_ward, cex = 0.9)
+rect.hclust(hclust_ward, 
+            k = 4, 
+            border = 2:5)
+```
+
+1.  
+
+    ## Mapping the clusters
+
+    We first use the function cutree() of R base to prune the clusters to 5:
+
+    ```{r}
+    groups <- as.factor(cutree(hclust_ward, k=5))
+    ```
+
+    We will create a new sf dataframe nga_final which includes the geometry and the variables:
+
+    ```{r}
+    nga_final <- nigeria_wp %>%
+      select("ADM2_EN", "wpt functional", "wpt non-functional", 
+             "pct_functional", "pct_non-functional", 
+             "pct_handpump", "pct_usage_below_1k", "pct_rural")
+    ```
+
+    Next, we will use cbind() from base R to save the clustering group as a column:
+
+    ```{r}
+    bind_std_cluster_vars <- cbind(nga_final, as.matrix(groups)) %>%
+      rename(`CLUSTER`=`as.matrix.groups.`)
+    ```
+
+    Here we will do a simple filtering to allow us to get the group number of a specific region
+
+    ```{r}
+    bind_std_cluster_vars %>% filter(ADM2_EN == "Kanke")
+    ```
+
+    Using qtm() of the tmap, we will perform a quick plot as follow:
+
+    ```{r}
+    tmap_mode("plot")
+    ```
+
+    ```{r}
+    tm_shape(bind_std_cluster_vars) + 
+      tm_fill("CLUSTER") + 
+      tm_borders(alpha = 0.9) + 
+      tm_compass(type="8star", size = 2) +
+      tm_scale_bar() +
+      tm_grid(alpha =0.2) +
+      tm_layout(main.title = "Cluster Distribution of Nigeria",
+                main.title.position = "center",
+                main.title.size = 1.2,
+                legend.height = 0.45, 
+                legend.width = 0.35,
+                frame = TRUE) 
+    ```
+
+    From the above plot, we can see that if we do clustering without consideration for geographic location, we get a cluster map that has clusters that are highly fragmented.
+
+    ## SKATER
+
+    Unconstrained clustering often will show some form of regional clustering, but if we want all members of the clusters to show spatially contiguous relationships, we need specialized algorithm such as SKATER.
+
+    A key idea here is that traditional cluster valuation measures is sub-optimal in practice because of real-world constraints. As shown from the unconstrained cluster evaluation above, our clusters turned out to be quite fragmented.
+
+    Thus, the advantage of using SKATER is that it provides a hard requirement that spatial objects in the same cluster are also geographically linked. It is a rationalization approach using graph partitioning while preserving neighborhood connectivity.
+
+    ## Check for regions without neighbors:
+
+    ```{r}
+    summary(poly2nb(nigeria_wp))
+    ```
+
+    ```{r}
+    poly2nb(nigeria_wp)[86]
+    ```
+
+    ## Remove regions without neighbors:
+
+    We remove row 86 from boundary file:
+
+    ```{r}
+    nga <- nigeria_wp[c(1:85, 87:774),]
+    ```
+
+    ```{r}
+    bind_std_cluster_vars <- bind_std_cluster_vars[c(1:85, 87:774),]
+    nga_wp <- nga_wp[c(1:85, 87:774),]
+    std_cluster_vars <- std_cluster_vars[c(1:85, 87:774),]
+    nga_final <- nga_final[c(1:85, 87:774),]
+    ```
+
+    ## Compute the neighbors and the cost:
+
+    ### Neighbor
+
+    We will convert the boundary file to a spatial file and then feed it to the function poly2nb():
+
+    ```{r}
+    nga_sp <- as_Spatial(nga)
+    nga.nb <- poly2nb(nga_sp)
+    summary(nga.nb)
+    ```
+
+    We can then plot the neighbor relationship:
+
+    ```{r}
+    plot(nga_sp, 
+         border=grey(.5), main="Neighbor Map", cex.main=4)
+    plot(nga.nb, 
+         coordinates(nga_sp), 
+         col="blue", 
+         add=TRUE)
+    ```
+
+    ### Edge cost and weights
+
+    Next we will use the neighbor list and the clustering variables to compute the edge cost\
+    using nbcosts() of spdep package:
+
+    ```{r}
+    lcosts <- nbcosts(nga.nb, std_cluster_vars)
+    ```
+
+    Next we need to construct the weights taking into account the edge cost and the neighbors:\
+    (We need to use \"B\" for binary here since we want the edge cost)
+
+    ```{r}
+    nga.w <- nb2listw(nga.nb, 
+                       lcosts, 
+                       style="B")
+    ```
+
+    ```{r}
+    summary(nga.w)
+    ```
+
+    ## Construct Minimum Spanning Tree
+
+    ```{r}
+    nga.mst <- mstree(nga.w)
+    class(nga.mst)
+    dim(nga.mst)
+    head(nga.mst)
+    ```
+
+    Finally we can plot the minimum spanning tree as follow:\
+    (We will set the size of label to be small so we can see the tree)
+
+    ```{r}
+    plot(nga_sp, border=gray(.5), main="Minimum Spanning Tree", cex.main=4)
+    plot.mst(nga.mst,
+             coordinates(nga_sp),
+             col="blue",
+             cex.lab=0.1,
+             cex.circles=0.005,
+             add=TRUE)
+    ```
+
+    ```{r}
+    rm(lcosts)
+    rm(nga.w)
+    rm(nga.nb)
+    ```
+
+    ## Compute Spatially constrained clusters with SKATER method
+
+    Now that we have the minimum spanning tree, we can then compute the spatially constrained cluster using the skater() package of spdep. We will be needing the minimum spanning tree computed earlier as well as the standardized cluster variables.
+
+    Note: the number of cuts is not equal to the number of clusters. For cluster 5, the number of cuts required is actually 4.
+
+    We run the code as follow
+
+    ```{r}
+    clust5 <- spdep::skater(edges = nga.mst[,1:2], 
+                     data = std_cluster_vars, 
+                     method = "euclidean", 
+                     ncuts = 4)
+    ccs5 <- clust5$groups
+    ```
+
+    Next we will plot our the lines for each individual cluster:
+
+    ```{r}
+    plot(nga_sp, border=gray(.1), main="SKATER Clusters", cex.main=4)
+    plot(clust5, 
+         coordinates(nga_sp), 
+         cex.lab=0.1,
+         groups.colors=c("red","green","blue", "brown", "black"),
+         cex.circles=0.005, lwd=3.0,
+         add=TRUE)
+    ```
+
+    Lastly we can visualize our outcome with qtm() of the tmap:
+
+    ```{r}
+    groups_mat <- as.matrix(clust5$groups)
+    nga_sf_spatialcluster <- cbind(nga_final, as.factor(groups_mat)) %>%
+        rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
+
+    tm_shape(nga_sf_spatialcluster) + 
+      tm_fill("SP_CLUSTER") + 
+      tm_borders(alpha = 0.9) + 
+      tm_compass(type="8star", size = 2) +
+      tm_scale_bar() +
+      tm_grid(alpha =0.2) +
+      tm_layout(main.title = "Cluster Distribution of Nigeria",
+                main.title.position = "center",
+                main.title.size = 1.2,
+                legend.height = 0.45, 
+                legend.width = 0.35,
+                frame = TRUE) 
+    ```
+
+    After applying the SKATER method, we not see that the clusters becomes much less fragmented. as compared to earlier.
+
+    We can easily compare the difference using tmap_arrange() from the tmap package:
+
+    ```{r}
+    tmap_mode("plot")
+    ```
+
+    ```{r}
+    normal_cluster.map <- tm_shape(bind_std_cluster_vars) + 
+                          tm_fill("CLUSTER") + 
+                          tm_borders(alpha = 1.0) + 
+                          tm_compass(type="8star", size = 2) +
+                          tm_scale_bar() +
+                          tm_grid(alpha =0.2) +
+                          tm_layout(main.title = "Cluster Distribution of Nigeria",
+                                    main.title.position = "center",
+                                    main.title.size = 1.2,
+                                    legend.height = 0.45, 
+                                    legend.width = 0.35,
+                                    frame = TRUE) 
+
+    skater_cluster.map <- tm_shape(nga_sf_spatialcluster) + 
+                          tm_fill("SP_CLUSTER") + 
+                          tm_borders(alpha = 1.0) + 
+                          tm_compass(type="8star", size = 2) +
+                          tm_scale_bar() +
+                          tm_grid(alpha =0.2) +
+                          tm_layout(main.title = "Cluster Distribution of Nigeria",
+                                    main.title.position = "center",
+                                    main.title.size = 1.2,
+                                    legend.height = 0.45, 
+                                    legend.width = 0.35,
+                                    frame = TRUE) 
+
+    tmap_arrange(normal_cluster.map, skater_cluster.map,
+                 asp=NA, ncol=2)
+    ```
+
+    ```{r}
+    rm(clust5)
+    rm(groups_mat)
+    rm(normal_cluster.map)
+    rm(skater_cluster.map)
+    ```
+
+    # Spatially Constrained Method with ClustGeo
+
+    ClustGeo is a useful package that allows us to mix and find the best balance between maintaining spatial contiguity and the solution based on the variable of interest. All this is controlled by the mixing variable alpha.
+
+    There are 2 matrix D0 & D1 that is involved:\
+    -D0: This matrix represents the dissimilarities in the attribute/clustering variable space.\
+    -D1: This matrix represents the dissimilarities in the spatial domain.
+
+    Our goal is thus to find a good balance between this 2 matrix using the alpha variable.
+
+    ## Traditional Ward-Like clustering with ClustGeo
+
+    ClustGeo also offers a non-spatially constrained clustering with hclustgeo() as follow:
+
+    ```{r}
+    non_geo_cluster <- hclustgeo(proxmat)
+
+    png("plotdendogram_1.png",width=12800,height=3200)
+    plot(non_geo_cluster, cex = 1.2, lwd=3.0, main="Dendrogram", 
+         line = -20, cex.main=20)
+    ```
+
+    ## Preparing Spatially Constrained Hierarchical Clustering
+
+    To perform the clustering, we need 3 ingredients:\
+    -Distance Matrix: Represents the spatial domain\
+    -Proximity Matrix: Represents the variable domain\
+    -Mixing variable Alpha: This is required for denoting the degree of mix
+
+    ```{r}
+    dist <- st_distance(nga_final, nga_final)
+    distmat <- as.dist(dist)
+    proxmat <- dist(std_cluster_vars, method = 'euclidean')
+    cr <- choicealpha(proxmat, distmat, range.alpha = seq(0, 1, 0.1), K=6, 
+                      graph = TRUE)
+    ```
+
+    ## Spatially Constrained Hierarchical Clustering
+
+    ```{r}
+    clustG <- hclustgeo(proxmat, distmat, alpha = 0.5)
+    groups <- as.factor(cutree(clustG, k=5))
+    nga_sf_Gcluster <- cbind(nga_final, as.matrix(groups)) %>%
+                      rename(`CLUSTER` = `as.matrix.groups.`)
+    qtm(nga_sf_Gcluster, "CLUSTER")
+    ```
