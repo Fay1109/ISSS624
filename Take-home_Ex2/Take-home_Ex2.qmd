@@ -320,7 +320,7 @@ nigeria_wp <- nigeria_wp %>%
 ```
 
 ```{r}
-#| eval: false
+
 write_rds(nigeria_wp, "data/nigeria_wp.rds")
 ```
 
