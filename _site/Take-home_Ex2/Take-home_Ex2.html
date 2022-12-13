@@ -691,17 +691,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_functional)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_functional[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span><span class="st">`</span><span class="at">pct_non-functional</span><span class="st">`</span>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span><span class="st">`</span><span class="at">pct_non-functional</span><span class="st">`</span>[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_handpump)</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_handpump[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_usage_above_1k)</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_usage_above_1k[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_rural)</span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_rural[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_handpump)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_handpump[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_usage_above_1k)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_usage_above_1k[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>NaN_list <span class="ot">&lt;-</span> <span class="fu">is.nan</span>(nigeria_wp<span class="sc">$</span>pct_rural)</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>nigeria_wp<span class="sc">$</span>pct_rural[NaN_list] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We run the code as follow:</p>
 <div class="cell">
@@ -716,7 +715,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>    ADM2_EN wpt functional wpt non-functional pct_functional pct_non-functional
 1 Aba North              7                  9      0.4117647          0.5294118
 2 Aba South             29                 35      0.4084507          0.4929577
-3    Abadam              0                  0      0.0000000          0.0000000
+3    Abadam              0                  0      0.0000000                NaN
   pct_handpump pct_usage_below_1k  pct_rural
 1   0.11764706          0.1764706 0.00000000
 2   0.09859155          0.1267606 0.05633803
@@ -735,7 +734,7 @@ Abadam       Abadam              0                  0      0.0000000
           pct_non-functional pct_handpump pct_usage_below_1k  pct_rural
 Aba North          0.5294118   0.11764706          0.1764706 0.00000000
 Aba South          0.4929577   0.09859155          0.1267606 0.05633803
-Abadam             0.0000000   0.00000000                NaN 0.00000000</code></pre>
+Abadam                   NaN   0.00000000                NaN 0.00000000</code></pre>
 </div>
 </div>
 <p>Now, we do not need the column ADM2_EN &amp; pct_usage_below_1k anymore, so we exclude it:</p>
@@ -746,7 +745,7 @@ Abadam             0.0000000   0.00000000                NaN 0.00000000</code></
 <pre><code>          wpt functional wpt non-functional pct_functional pct_non-functional
 Aba North              7                  9      0.4117647          0.5294118
 Aba South             29                 35      0.4084507          0.4929577
-Abadam                 0                  0      0.0000000          0.0000000
+Abadam                 0                  0      0.0000000                NaN
           pct_handpump  pct_rural
 Aba North   0.11764706 0.00000000
 Aba South   0.09859155 0.05633803
@@ -765,18 +764,20 @@ Abadam      0.00000000 0.00000000</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> wpt functional    wpt non-functional pct_functional   pct_non-functional
  Min.   :0.00000   Min.   :0.00000    Min.   :0.0000   Min.   :0.0000    
- 1st Qu.:0.02261   1st Qu.:0.04406    1st Qu.:0.3261   1st Qu.:0.2105    
- Median :0.06051   Median :0.12230    Median :0.4741   Median :0.3505    
- Mean   :0.08957   Mean   :0.14962    Mean   :0.4984   Mean   :0.3592    
- 3rd Qu.:0.11669   3rd Qu.:0.21853    3rd Qu.:0.6699   3rd Qu.:0.5076    
+ 1st Qu.:0.02261   1st Qu.:0.04406    1st Qu.:0.3261   1st Qu.:0.2211    
+ Median :0.06051   Median :0.12230    Median :0.4741   Median :0.3559    
+ Mean   :0.08957   Mean   :0.14962    Mean   :0.4984   Mean   :0.3654    
+ 3rd Qu.:0.11669   3rd Qu.:0.21853    3rd Qu.:0.6699   3rd Qu.:0.5082    
  Max.   :1.00000   Max.   :1.00000    Max.   :1.0000   Max.   :1.0000    
+                                                       NA's   :13        
   pct_handpump      pct_rural     
  Min.   :0.0000   Min.   :0.0000  
  1st Qu.:0.1670   1st Qu.:0.5727  
  Median :0.5099   Median :0.8645  
  Mean   :0.4873   Mean   :0.7271  
  3rd Qu.:0.7778   3rd Qu.:1.0000  
- Max.   :1.0000   Max.   :1.0000  </code></pre>
+ Max.   :1.0000   Max.   :1.0000  
+                                  </code></pre>
 </div>
 </div>
 </section>
@@ -841,7 +842,7 @@ Using the dist() of the base R package, we will compute the proximity matrix:</p
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>agnes_result <span class="ot">&lt;-</span> <span class="fu">agnes</span>(std_cluster_vars, <span class="at">method =</span> <span class="st">"ward"</span>)</span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>agnes_result<span class="sc">$</span>ac</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.990276</code></pre>
+<pre><code>[1] 0.9899909</code></pre>
 </div>
 </div>
 <p>The results are stored in the output data structure under the name agnes_result$ac. The higher the magnitude of this value, the better the clustering structure. In this case, “ward” gets a score of 0.9899133 which shows strong clustering structure.</p>
@@ -866,7 +867,7 @@ Using the dist() of the base R package, we will compute the proximity matrix:</p
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dbl</span>(algorithms, test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  average    single  complete      ward 
-0.9114067 0.7819154 0.9440637 0.9902760 </code></pre>
+0.8975130 0.7822181 0.9442809 0.9899909 </code></pre>
 </div>
 </div>
 <p>Of the clustering algorithms, we can see that “ward” methods gives us the best clustering structure. Hence we will use this for the rest of the analysis.</p>
@@ -1070,7 +1071,7 @@ Link number distribution:
 Weights style: B 
 Weights constants summary:
     n     nn       S0       S1       S2
-B 773 597529 3199.663 5587.281 64117.47</code></pre>
+B 773 597529 3209.808 5653.652 64754.63</code></pre>
 </div>
 </div>
 <h2 id="construct-minimum-spanning-tree" class="anchored">Construct Minimum Spanning Tree</h2>

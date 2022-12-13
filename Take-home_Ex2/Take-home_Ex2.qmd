@@ -383,8 +383,7 @@ To perform the analysis, we need to extract the cluster variables without the ge
 NaN_list <- is.nan(nigeria_wp$pct_functional)
 nigeria_wp$pct_functional[NaN_list] <- 0
 
-NaN_list <- is.nan(nigeria_wp$`pct_non-functional`)
-nigeria_wp$`pct_non-functional`[NaN_list] <- 0
+
 
 NaN_list <- is.nan(nigeria_wp$pct_handpump)
 nigeria_wp$pct_handpump[NaN_list] <- 0
