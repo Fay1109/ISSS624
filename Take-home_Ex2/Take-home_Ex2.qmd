@@ -350,12 +350,12 @@ tmap_arrange(total, wp_functional, wp_nonfunctional, unknown, asp=1, ncol=2)
 Before we perform cluster analysis, it is important for us to ensure that the cluster variables are not highly correlated.
 
 ```{r}
-corr_data <- nigeria_wp[,c(6:7, 14:15, 19:20)] %>% st_set_geometry(NULL)
+corr_data <- nigeria_wp[,c(6:7, 14:16, 19:20)] %>% st_set_geometry(NULL)
 
 ```
 
 ```{r}
-cluster_vars.cor = cor(corr_data)
+cluster_vars.cor = cor(corr_data[,1:7])
 corrplot.mixed(cluster_vars.cor,
          lower = "ellipse", 
                upper = "number",
@@ -379,20 +379,18 @@ Hierarchy Cluster Analysis
 To perform the analysis, we need to extract the cluster variables without the geometric data. To do this, we we will use the function st_set_geometry(NULL) from sf package on our sf dataframe.
 
 ```{r}
-#| eval: false
+
 NaN_list <- is.nan(nigeria_wp$pct_functional)
 nigeria_wp$pct_functional[NaN_list] <- 0
 
-
-
-NaN_list <- is.nan(nigeria_wp$pct_handpump)
-nigeria_wp$pct_handpump[NaN_list] <- 0
+NaN_list <- is.nan(nigeria_wp$`pct_non-functional`)
+nigeria_wp$`pct_non-functional`[NaN_list] <- 0
 
 NaN_list <- is.nan(nigeria_wp$pct_handpump)
 nigeria_wp$pct_handpump[NaN_list] <- 0
 
-NaN_list <- is.nan(nigeria_wp$pct_usage_below_1k)
-nigeria_wp$pct_usage_below_1k[NaN_list] <- 0
+NaN_list <- is.nan(nigeria_wp$pct_usage_above_1k)
+nigeria_wp$pct_usage_above_1k[NaN_list] <- 0
 
 NaN_list <- is.nan(nigeria_wp$pct_rural)
 nigeria_wp$pct_rural[NaN_list] <- 0
